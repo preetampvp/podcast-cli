@@ -28,3 +28,5 @@ podcast-cli
 *.swo
 *.swn
 *.un~
+
+.vscode

@@ -44,8 +44,9 @@ func initHelpBar() {
 		"[Esc ](fg:black)[Back](fg:black,bg:green) " +
 		"[Right ](fg:black)[+10s](fg:black,bg:green) " +
 		"[Left ](fg:black)[-10s](fg:black,bg:green) " +
-		"[ q ](fg:black)[Exit](fg:black,bg:green)" +
-		"[ s ](fg:black)[SEARCH](fg:black,bg:green)"
+		"[ s ](fg:black)[SPEED UP](fg:black,bg:green)" +
+		"[ S ](fg:black)[SPEED DOWN](fg:black,bg:green)" +
+		"[ q ](fg:black)[Exit](fg:black,bg:green)"
 
 	helpBarWidget.Border = false
 	helpBarWidget.WrapText = true
@@ -92,11 +93,11 @@ func Show() {
 		case <-time.After(time.Millisecond * 500):
 			if audioplayer.MainCtrl != nil {
 				if audioplayer.MainCtrl.Paused {
-					audioDurationWidget.Title = "Stopped"
+					audioDurationWidget.Title = "Paused"
 				} else {
 					position := audioplayer.Position()
 					audioDurationWidget.Title = "Running"
-					audioDurationWidget.Label = fmt.Sprintf("%d:%d", position/60, position%60)
+					audioDurationWidget.Label = fmt.Sprintf("%02d:%02d (Speed: %.1fx)", position/60, position%60, audioplayer.Speed)
 					if audioDuration > 0 {
 						audioDurationWidget.Percent = (position * 100) / audioDuration
 					}
@@ -139,9 +140,13 @@ func Show() {
 						audioDurationWidget.Title = "Running"
 					} else {
 						audioplayer.PauseSong(true)
-						audioDurationWidget.Title = "Stopped"
+						audioDurationWidget.Title = "Paused"
 					}
 				}
+			case "s":
+				audioplayer.SpeedUp()
+			case "S":
+				audioplayer.SpeedDown()
 			case "<Right>":
 				if audioplayer.MainCtrl != nil {
 					position := audioplayer.Position() + 10

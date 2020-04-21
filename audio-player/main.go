@@ -17,20 +17,23 @@ import (
 	"github.com/faiface/beep/wav"
 )
 
-type AudioPlayer struct {
-	Streamer beep.StreamSeekCloser
-	Format   beep.Format
-}
+// type AudioPlayer struct {
+// 	Streamer beep.StreamSeekCloser
+// 	Format   beep.Format
+// }
 
 var (
 	MainCtrl *beep.Ctrl
 	Volume   *effects.Volume
 	Streamer beep.StreamSeekCloser
 	Format   beep.Format
+	Speed    float64
+	Sampler  *beep.Resampler
 )
 
 func init() {
 	Volume = &effects.Volume{Base: 2}
+	Speed = 1
 }
 
 func downloadContent(URL string, filename string, directory string) (string, error) {
@@ -73,13 +76,12 @@ func PlaySound(filename, directory, URL string) (int, error) {
 	if err != nil {
 		return 0, errors.New("Unsupported audio format")
 	}
-	sr := Format.SampleRate * 2
+	sr := Format.SampleRate
 	speaker.Init(sr, sr.N(time.Second/10))
-
-	Volume.Streamer = beep.Resample(4, Format.SampleRate, sr, Streamer)
+	Sampler = beep.Resample(4, Format.SampleRate, sr, Streamer)
+	Volume.Streamer = Sampler
 	MainCtrl = &beep.Ctrl{Streamer: Volume}
 	speaker.Play(MainCtrl)
-
 	return int(float32(Streamer.Len()) / float32(Format.SampleRate)), nil
 }
 
@@ -87,6 +89,25 @@ func PauseSong(state bool) {
 	speaker.Lock()
 	MainCtrl.Paused = state
 	speaker.Unlock()
+}
+
+func SpeedUp() {
+
+	if MainCtrl != nil {
+		speaker.Lock()
+		Speed += 0.1
+		Sampler.SetRatio(Speed)
+		speaker.Unlock()
+	}
+}
+
+func SpeedDown() {
+	if MainCtrl != nil {
+		speaker.Lock()
+		Speed -= 0.1
+		Sampler.SetRatio(Speed)
+		speaker.Unlock()
+	}
 }
 
 func Seek(pos int) error {

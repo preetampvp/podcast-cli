@@ -44,5 +44,6 @@ func updateEpisodesDetails() {
 	title := fmt.Sprintf("[Title](fg:magenta)        %s", currentEpisode.Title)
 	description := fmt.Sprintf("[Description](fg:magenta)  %s", currentEpisode.Description)
 	date := fmt.Sprintf("[Release Date](fg:magenta) %s", currentEpisode.ReleaseDate)
-	episodeDetailsWidget.Text = strings.Join([]string{title, description, date}, "\n")
+	url := fmt.Sprintf("[Url](fg:magenta) %s", currentEpisode.URL)
+	episodeDetailsWidget.Text = strings.Join([]string{title, description, url, date}, "\n")
 }
